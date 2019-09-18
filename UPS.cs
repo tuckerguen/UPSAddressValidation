@@ -26,6 +26,7 @@ namespace UPSValidation
         /// <summary> Is the api use for testing or for production </summary>
         public bool isTesting = Convert.ToBoolean(ConfigurationManager.AppSettings["isTesting"]);
 
+        /// <summary> Identifies the optional processing to be performed </summary>
         public int RequestOption = 1;
 
         public UPS (int requestOption)
@@ -83,11 +84,13 @@ namespace UPSValidation
             };
 
             var response = await Request(addressKeyFormat);
+            if(response.XAVResponse == null)
+                return null;
+            
+            if (response.XAVResponse.NoCandidatesIndicator == "")
+                return null;
 
             var candidates = response.XAVResponse.Candidate;
-
-            if (response.XAVResponse.NoCandidatesIndicator == "") return null;
-
             var candidateAddresses = new List<Address>();
 
             foreach(Candidate c in candidates)
